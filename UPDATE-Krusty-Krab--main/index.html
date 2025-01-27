@@ -164,14 +164,81 @@
             margin-top: 10px;
             font-weight: bold;
         }
+
+        .flash-message {
+            display: none;
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1001;
+            text-align: center;
+            font-size: 24px;
+            justify-content: center;
+            align-items: center;
+            animation: dropDown 1s forwards;
+        }
+
+        .intro {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            flex-direction: column;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            animation: fadeInZoom 2s forwards;
+        }
+
+        .intro img {
+            max-width: 80%;
+            max-height: 80%;
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeInZoom {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes dropDown {
+            0% {
+                top: -100%;
+            }
+
+            100% {
+                top: 0;
+            }
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
-
-
-
+    <div class="intro" id="intro">
+        <img src="The_Krusty_Krab_shop.webp" alt="The Krusty Krab Shop">
+        <p>Welcome to the Krusty Burger Online Ordering Page</p>
+    </div>
+    <audio id="intro-sound" src="intro.mp3"></audio>
     <div class="menu-container">
         <div class="product-box">
             <img src="dfai6nl-eada4e1e-bd23-4303-ae17-ae226bb121f3.png" alt="Krabby Patty">
@@ -271,8 +338,16 @@
         <div class="checkout-total" id="checkout-total">Total: $0.00</div>
         <button id="checkout-button">Checkout</button>
     </div>
+    <div class="flash-message" id="flash-message">Woah there, slow down Boiger</div>
+    <audio id="game-over-sound" src="game_over.mp3"></audio>
     <script>
         $(document).ready(function () {
+            $('#intro').fadeIn().delay(3000).fadeOut();
+
+            $(document).one('click', function () {
+                $('#intro-sound')[0].play();
+            });
+
             var checkoutItems = [];
 
             $('.product-box').click(function () {
@@ -301,9 +376,16 @@
                 var total = checkoutItems.reduce(function (sum, item) {
                     return sum + item.price;
                 }, 0);
-                alert('Checkout complete! Total: $' + total.toFixed(2));
-                checkoutItems = [];
-                updateCheckoutList();
+                if (total > 100) {
+                    $('#flash-message').fadeIn().delay(3000).fadeOut();
+                    $('#game-over-sound')[0].play();
+                    $('#intro-sound')[0].pause();
+                    $('#intro-sound')[0].currentTime = 0;
+                } else {
+                    alert('Checkout complete! Total: $' + total.toFixed(2));
+                    checkoutItems = [];
+                    updateCheckoutList();
+                }
             });
 
             function updateCheckoutList() {
